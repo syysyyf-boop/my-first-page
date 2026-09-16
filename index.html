@@ -4,20 +4,44 @@
   <title>聊天</title>
   <style>
     body {
-    
-    background-image: url('bg.PNG');
-    background-size: cover;
-    font-family: sans-serif;
-    margin: 0;
-    padding: 20px;
-    font-size: 14px;
-
+      background-image: url('bg.PNG');
+      background-size: cover;
+      background-position: center;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      font-size: 14px;
     }
-    .chat {
-      max-width:700px;
-      margin: 0 auto;
-      padding-bottom:65px;
 
+    .chat {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px 16px 80px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 20px 0 30px;
+    }
+
+    .header-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 12px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .header-name {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .header-sub {
+      font-size: 13px;
+      color: #888;
     }
 
     .message {
@@ -36,138 +60,137 @@
       border-radius: 50%;
       margin: 0 8px;
       flex-shrink: 0;
-
+      object-fit: cover;
     }
-.header {
-  text-align: center;
-  padding: 20px 0 30px;
-}
 
-.header-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  margin: 0 auto 12px;
-}
+    .msg-content {
+      display: flex;
+      flex-direction: column;
+      max-width: 65%;
+    }
 
-.header-name {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 6px;
-}
+    .message.right .msg-content {
+      align-items: flex-end;
+    }
 
-.header-sub {
-  font-size: 13px;
-  color: #888;
-}
-.input-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  padding: 10px 16px;
-  background-color: #f7f7f7;
-  border-top: 1px solid #999;
-  gap: 8px;
-}
-
-.input-bar input {
-  flex: 1;
-  padding: 10px 14px;
-  border-radius: 20px;
-  border: 1px solid #ddd;
-  font-size: 15px;
-  outline: none;
-}
-
-.input-bar button {
-  padding: 10px 18px;
-  border-radius: 20px;
-  border: none;
-  background-color: #1E90FF;
-  color: white;
-  font-size: 15px;
-}
+    .message.left .msg-content {
+      align-items: flex-start;
+    }
 
     .bubble {
       background-color: white;
       padding: 10px 14px;
       border-radius: 18px;
-      max-width: 65%;
       font-size: 15px;
       word-break: break-word;
+      white-space: pre-wrap;
     }
 
     .message.right .bubble {
-      background-color: #CCC;
+      background-color: #d4f0ff;
     }
-    .message{
-  display: flex;
-  align-items:flex-end;
-  margin-bottom:16px
-}
-
 
     .time {
       font-size: 11px;
       color: #aaa;
-      margin: 4px 8px 0;
-      max-width: 80%;
+      margin-top: 4px;
+    }
 
+    .input-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      padding: 10px 16px;
+      background-color: rgba(247,247,247,0.95);
+      border-top: 1px solid #ddd;
+      gap: 8px;
+    }
+
+    .input-bar input {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 20px;
+      border: 1px solid #ddd;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .input-bar button {
+      padding: 10px 18px;
+      border-radius: 20px;
+      border: none;
+      background-color: #1E90FF;
+      color: white;
+      font-size: 15px;
     }
   </style>
 </head>
 <body>
   <div class="chat">
-<div class="header">
-  <img class="header-avatar" src="avatar-left.PNG">
-  <div class="header-name">董米米</div>
-  <div class="header-sub">你的世界裡能不能多一點我存在的痕跡</div>
-</div>
+    <div class="header">
+      < img class="header-avatar" src="avatar-left.PNG">
+      <div class="header-name">董米米</div>
+      <div class="header-sub">你的世界裡能不能多一點我存在的痕跡</div>
+    </div>
 
     <div class="message left">
-      <img class="avatar" src="avatar-left.PNG">
-      <div>
+      < img class="avatar" src="avatar-left.PNG">
+      <div class="msg-content">
         <div class="bubble">你好，我是米米！</div>
         <div class="time">23:43</div>
       </div>
     </div>
 
     <div class="message right">
-      <img class="avatar" src="avatar-right.PNG">
-      <div>
+      < img class="avatar" src="avatar-right.PNG">
+      <div class="msg-content">
         <div class="bubble">你好喵喵喵喵！我是小崔喵</div>
         <div class="time">23:43</div>
       </div>
     </div>
-<div class="input-bar">
-  <input type="text" placeholder="消息" />
-  <button onclick="sendMessage()">發送</button>
-</div>
 
+    <div class="input-bar">
+      <input type="text" id="msgInput" placeholder="消息" />
+      <button onclick="sendMessage()">發送</button>
+    </div>
   </div>
+
   <script>
-  function sendMessage() {
-    var input = document.querySelector(".input-bar input");
-    var text = input.value.trim();
-    if (text === "") return;
+    function getTime() {
+      var now = new Date();
+      var h = now.getHours().toString().padStart(2, '0');
+      var m = now.getMinutes().toString().padStart(2, '0');
+      return h + ':' + m;
+    }
 
-    var chat = document.querySelector(".chat");
-    var msg = document.createElement("div");
-    msg.className = "message right";
-    msg.innerHTML = `
-      <div class="avatar"></div>
-      <div>
-        <div class="bubble">${text}</div>
-        <div class="time">剛剛</div>
-      </div>
-    `
-    chat.appendChild(msg);
-    input.value = "";
-    window.scrollTo(0, document.body.scrollHeight);
-  }
-</script>
+    function sendMessage() {
+      var input = document.getElementById("msgInput");
+      var text = input.value.trim();
+      if (text === "") return;
 
+      var chat = document.querySelector(".chat");
+      var inputBar = document.querySelector(".input-bar");
+
+      var msg = document.createElement("div");
+      msg.className = "message right";
+      msg.innerHTML = `
+        < img class="avatar" src="avatar-right.PNG">
+        <div class="msg-content">
+          <div class="bubble">${text}</div>
+          <div class="time">${getTime()}</div>
+        </div>
+      `;
+
+      chat.insertBefore(msg, inputBar);
+      input.value = "";
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    document.getElementById("msgInput").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
 </body>
 </html>
