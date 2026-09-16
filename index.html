@@ -1,21 +1,22 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>聊天</title>
   <style>
     body {
-     background-image: url('bg.PNG');
-     background-size: cover;
-     background-attachment: fixed;
-      font-family: sans-serif;
-      margin: 0;
-      padding: 20px;
-      font-size: 14px;
+    
+    background-image: url('bg.PNG');
+    background-size: cover;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+    font-size: 14px;
 
     }
     .chat {
       max-width:700px;
       margin: 0 auto;
-      padding-bottom: px;
+      padding-bottom:65px;
 
     }
 
@@ -33,25 +34,23 @@
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background-color: #999;
       margin: 0 8px;
       flex-shrink: 0;
 
-    }
-.header {
+}
+    .header {
   text-align: center;
   padding: 20px 0 30px;
 }
 
-.header-avatar {
+   .header-avatar {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background-color: #999;
   margin: 0 auto 12px;
 }
 
-.header-name {
+    .header-name {
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 6px;
@@ -61,6 +60,7 @@
   font-size: 13px;
   color: #888;
 }
+
 .input-bar {
   position: fixed;
   bottom: 0;
@@ -122,13 +122,13 @@
 <body>
   <div class="chat">
 <div class="header">
-  <div class="header-avatar"></div>
+  <img class="header-avatar" src="avatar-left.PNG">
   <div class="header-name">董米米</div>
   <div class="header-sub">你的世界裡能不能多一點我存在的痕跡</div>
 </div>
 
     <div class="message left">
-      <div class="avatar"></div>
+      <img class="avatar" src="avatar-left.PNG">
       <div>
         <div class="bubble">你好，我是米米！</div>
         <div class="time">23:43</div>
@@ -136,7 +136,7 @@
     </div>
 
     <div class="message right">
-      <div class="avatar"></div>
+      <img class="avatar" src="avatar-right.PNG">
       <div>
         <div class="bubble">你好喵喵喵喵！我是小崔喵</div>
         <div class="time">23:43</div>
@@ -163,7 +163,7 @@
         <div class="bubble">${text}</div>
         <div class="time">剛剛</div>
       </div>
-    `;
+    `
     chat.appendChild(msg);
     input.value = "";
     window.scrollTo(0, document.body.scrollHeight);
