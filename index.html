@@ -1,42 +1,174 @@
-<!DOCTYPE html>
 <html>
-  <head>
-   <style>
-  body {
-    background-color: black;
-  }
-   h3{
-     color:white;
-   } 
-     button {
-  background-color: blue;
-  color: white;
-  font-size: 20px;
-}
-.box {
-  width: 300px;
-  margin: 0 auto;
-  text-align: center;
-  padding-top:50px;
-}
-   </style>
-    <title>我的第一頁</title>
-  </head>
-  <body>
-    <div class="box">
-    <h3 id="quote">按下去拿一句话</h3>
-    <button onclick="getQuote()">拿一句话</button>
-  </div>
+<head>
+  <title>聊天</title>
+  <style>
+    body {
+     background-image: url('bg.PNG');
+     background-size: cover;
+     background-attachment: fixed;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+      font-size: 14px;
 
+    }
+    .chat {
+      max-width:700px;
+      margin: 0 auto;
+      padding-bottom: px;
+
+    }
+
+    .message {
+      display: flex;
+      align-items: flex-end;
+      margin-bottom: 16px;
+    }
+
+    .message.right {
+      flex-direction: row-reverse;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #999;
+      margin: 0 8px;
+      flex-shrink: 0;
+
+    }
+.header {
+  text-align: center;
+  padding: 20px 0 30px;
+}
+
+.header-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #999;
+  margin: 0 auto 12px;
+}
+
+.header-name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.header-sub {
+  font-size: 13px;
+  color: #888;
+}
+.input-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  padding: 10px 16px;
+  background-color: #f7f7f7;
+  border-top: 1px solid #999;
+  gap: 8px;
+}
+
+.input-bar input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+  outline: none;
+}
+
+.input-bar button {
+  padding: 10px 18px;
+  border-radius: 20px;
+  border: none;
+  background-color: #1E90FF;
+  color: white;
+  font-size: 15px;
+}
+
+    .bubble {
+      background-color: white;
+      padding: 10px 14px;
+      border-radius: 18px;
+      max-width: 65%;
+      font-size: 15px;
+      word-break: break-all;
+    }
+
+    .message.right .bubble {
+      background-color: #CCC;
+    }
+    .message.right > div:not(.avatar) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+
+    .time {
+      font-size: 11px;
+      color: #aaa;
+      margin: 4px 8px 0;
+      max-width: 80%;
+
+    }
+  </style>
+</head>
+<body>
+  <div class="chat">
+<div class="header">
+  <div class="header-avatar"></div>
+  <div class="header-name">董米米</div>
+  <div class="header-sub">你的世界裡能不能多一點我存在的痕跡</div>
+</div>
+
+    <div class="message left">
+      <div class="avatar"></div>
+      <div>
+        <div class="bubble">你好，我是米米！</div>
+        <div class="time">23:43</div>
+      </div>
+    </div>
+
+    <div class="message right">
+      <div class="avatar"></div>
+      <div>
+        <div class="bubble">你好喵喵喵喵！我是小崔喵</div>
+        <div class="time">23:43</div>
+      </div>
+    </div>
+<div class="input-bar">
+  <input type="text" placeholder="消息" />
+  <button onclick="sendMessage()">發送</button>
+</div>
+
+  </div>
   <script>
-    function getQuote() {
-      fetch("https://v1.hitokoto.cn/")
-        .then(res => res.json())
-        .then(data => {
-          document.querySelector("#quote").innerText = data.hitokoto;
-        });
+  function sendMessage() {
+    var input = document.querySelector(".input-bar input");
+    var text = input.value.trim();
+    if (text === "") return;
+
+    var chat = document.querySelector(".chat");
+    var msg = document.createElement("div");
+    msg.className = "message right";
+    msg.innerHTML = `
+      <div class="avatar"></div>
+      <div>
+        <div class="bubble">${text}</div>
+        <div class="time">剛剛</div>
+      </div>
+    `;
+    chat.appendChild(msg);
+    input.value = "";
+    window.scrollTo(0, document.body.scrollHeight);
   }
-    getQuote();
-  </script>
-  </body>
+</script>
+
+</body>
 </html>
