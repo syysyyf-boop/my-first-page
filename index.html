@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+   <style>
+  body {
+    background-color: skyblue;
+  }
+   h3{
+     color:white;
+   } 
+     button {
+  background-color: blue;
+  color: white;
+  font-size: 20px;
+}
+.box {
+  width: 300px;
+  margin: 0 auto;
+  text-align: center;
+  padding-top:50px;
+}
+   </style>
+    <title>我的第一頁</title>
+  </head>
+  <body>
+    <div class="box">
+    <h3 id="quote">按下去拿一句话</h3>
+    <button onclick="getQuote()">拿一句话</button>
+  </div>
+
+  <script>
+    function getQuote() {
+      fetch("https://v1.hitokoto.cn/")
+        .then(res => res.json())
+        .then(data => {
+          document.querySelector("#quote").innerText = data.hitokoto;
+        });
+  }
+    getQuote();
+  </script>
+  </body>
+</html>
