@@ -810,9 +810,24 @@ max_tokens: 1000
 
 const txt = await res.text();
 
-const data = JSON.parse(txt);
+let data;
+
+try {
+
+  data = JSON.parse(txt);
+
+} catch(parseErr) {
+
+  alert("relay原始回應(前300字)：\n" + txt.substring(0, 300));
+
+  typingIndicator.classList.remove("show");
+
+  return;
+
+}
 
 if (!data.choices) { alert(JSON.stringify(data)); typingIndicator.classList.remove("show"); return; }
+
 var reply = data.choices[0].message.content;
 
 chatHistory.push({ role: "assistant", content: reply });
