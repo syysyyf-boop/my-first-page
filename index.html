@@ -178,10 +178,6 @@
     }
 
     .input-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
       display: flex;
       padding: 10px 16px;
       background: rgba(20, 20, 30, 0.85);
@@ -231,11 +227,16 @@
   color: #e0e0e0;
   line-height: 1;
 }
+.input-wrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
 
 .emoji-panel {
   display: none;
-  position: fixed;
-  bottom: 60px;
   left: 0;
   right: 0;
   background: rgba(20, 20, 30, 0.92);
@@ -302,6 +303,7 @@
       </div>
     </div>
 
+    <div class="input-wrapper">
     <div class="input-bar">
   <button class="icon-btn" onclick="toggleEmoji()">★</button>
 <button class="icon-btn" onclick="document.getElementById('imgInput').click()">☆</button>
@@ -322,6 +324,7 @@
   <span onclick="insertEmoji(this)">⸝⸝⬮ω⬮⸝⸝</span><span onclick="insertEmoji(this)">◎～◎</span>
 </div>
     </div>
+  </div>
   </div>
 
   <script>
@@ -411,7 +414,14 @@
     });
  function toggleEmoji() {
   document.getElementById("emojiPanel").classList.toggle("show");
-}
+}document.addEventListener("click", function(e) {
+  var panel = document.getElementById("emojiPanel");
+  var btn = e.target.closest(".icon-btn");
+  if (!btn && !panel.contains(e.target)) {
+    panel.classList.remove("show");
+  }
+}）
+
 
 function insertEmoji(el) {
   var input = document.getElementById("msgInput");
