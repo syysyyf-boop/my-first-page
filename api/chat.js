@@ -1,6 +1,5 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
-
   try {
     const response = await fetch("https://www.molytea.ccwu.cc/ai-relay/v1/chat/completions", {
       method: "POST",
@@ -10,7 +9,6 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify(req.body)
     });
-
     const text = await response.text();
     res.status(response.status).send(text);
   } catch(e) {
