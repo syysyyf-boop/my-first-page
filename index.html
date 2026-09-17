@@ -1,465 +1,974 @@
 <!DOCTYPE html>
+
 <html>
+
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>聊天</title>
-  <style>
-    body {
-      background-image: url('bg.PNG');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      font-size: 14px;
-    }
-    .top-bar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background: rgba(20,20,30,0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .top-bar-center {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .top-bar-name {
-      font-size: 16px;
-      font-weight: bold;
-      color: #ffffff;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
-    }
-    .top-bar-sub {
-      font-size: 11px;
-      color: #8a9aaa;
-      margin-top: 2px;
-    }
-    .top-bar-btn {
-      color: #a8b8c8;
-      font-size: 20px;
-      background: none;
-      border: none;
-      padding: 4px 8px;
-      cursor: pointer;
-    }
-    #modelToggle {
-      font-size: 12px;
-      padding: 4px 8px;
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 8px;
-    }
-    .chat {
-      max-width: 700px;
-      margin: 0 auto;
-      padding: 72px 16px 90px;
-    }
-    .message {
-      display: flex;
-      align-items: flex-end;
-      margin-bottom: 16px;
-    }
-    .message.right { flex-direction: row-reverse; }
-    .avatar {
-      width: 38px; height: 38px;
-      border-radius: 50%;
-      margin: 0 8px;
-      flex-shrink: 0;
-      object-fit: cover;
-    }
-    .msg-content {
-      display: flex;
-      flex-direction: column;
-      max-width: 65%;
-    }
-    .message.right .msg-content { align-items: flex-end; }
-    .message.left .msg-content { align-items: flex-start; }
-    .bubble {
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: #e8e8e8;
-      padding: 10px 14px;
-      border-radius: 18px;
-      font-size: 15px;
-      word-break: break-word;
-      white-space: pre-wrap;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-    }
-    .message.right .bubble {
-      background: rgba(58,90,130,0.45);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(100,150,220,0.2);
-    }
-    .time-row {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      margin-top: 4px;
-    }
-    .time { font-size: 11px; color: #888; }
-    .read-status { font-size: 11px; color: #7a9ab8; }
-    .typing-indicator {
-      display: none;
-      align-items: flex-end;
-      margin-bottom: 16px;
-    }
-    .typing-indicator.show { display: flex; }
-    .typing-bubble {
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.12);
-      padding: 10px 16px;
-      border-radius: 18px;
-      display: flex;
-      gap: 5px;
-      align-items: center;
-    }
-    .typing-bubble span {
-      width: 7px; height: 7px;
-      background: #a8b8c8;
-      border-radius: 50%;
-      display: inline-block;
-      animation: typing-bounce 1.6s infinite ease-in-out;
-    }
-    .typing-bubble span:nth-child(2) { animation-delay: 0.3s; }
-    .typing-bubble span:nth-child(3) { animation-delay: 0.6s; }
-    @keyframes typing-bounce {
-      0%, 100% { opacity: 0.25; transform: scale(0.85); }
-      50% { opacity: 1; transform: scale(1); }
-    }
-    .input-wrapper {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      z-index: 100;
-    }
-    .input-bar {
-      display: flex;
-      padding: 10px 16px;
-      background: rgba(20,20,30,0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-top: 1px solid rgba(255,255,255,0.08);
-      gap: 8px;
-    }
-    .input-bar input {
-      flex: 1;
-      padding: 10px 14px;
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.07);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      color: #e0e0e0;
-      font-size: 15px;
-      outline: none;
-    }
-    .input-bar input::placeholder { color: #666; }
-    .input-bar button:not(.icon-btn) {
-      padding: 10px 18px;
-      border-radius: 20px;
-      border: none;
-      background-color: #3a5070;
-      color: white;
-      font-size: 15px;
-      cursor: pointer;
-    }
-    .icon-btn {
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 12px;
-      font-size: 20px;
-      padding: 8px 10px;
-      cursor: pointer;
-      flex-shrink: 0;
-      color: #e0e0e0;
-      line-height: 1;
-    }
-    .emoji-panel {
-      display: none;
-      background: rgba(20,20,30,0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-top: 1px solid rgba(255,255,255,0.08);
-      padding: 12px 16px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .emoji-panel.show { display: flex; }
-    .emoji-panel span {
-      font-size: 16px;
-      cursor: pointer;
-      color: #e0e0e0;
-    }
-  </style>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>聊天</title>
+
+<style>
+
+body {
+
+background-image: url('bg.PNG');
+
+background-size: cover;
+
+background-position: center;
+
+background-repeat: no-repeat;
+
+background-attachment: fixed;
+
+font-family: sans-serif;
+
+margin: 0;
+
+padding: 0;
+
+font-size: 14px;
+
+}
+
+.top-bar {
+
+position: fixed;
+
+top: 0; left: 0; right: 0;
+
+z-index: 100;
+
+display: flex;
+
+align-items: center;
+
+justify-content: space-between;
+
+padding: 12px 16px;
+
+background: rgba(20,20,30,0.75);
+
+backdrop-filter: blur(12px);
+
+-webkit-backdrop-filter: blur(12px);
+
+border-bottom: 1px solid rgba(255,255,255,0.08);
+
+}
+
+.top-bar-center {
+
+display: flex;
+
+flex-direction: column;
+
+align-items: center;
+
+}
+
+.top-bar-name {
+
+font-size: 16px;
+
+font-weight: bold;
+
+color: #ffffff;
+
+text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+
+cursor: pointer;
+
+}
+
+.top-bar-sub {
+
+font-size: 11px;
+
+color: #8a9aaa;
+
+margin-top: 2px;
+
+}
+
+.top-bar-btn {
+
+color: #a8b8c8;
+
+font-size: 20px;
+
+background: none;
+
+border: none;
+
+padding: 4px 8px;
+
+cursor: pointer;
+
+}
+
+#modelToggle {
+
+font-size: 12px;
+
+padding: 4px 8px;
+
+border: 1px solid rgba(255,255,255,0.2);
+
+border-radius: 8px;
+
+}
+
+.chat {
+
+max-width: 700px;
+
+margin: 0 auto;
+
+padding: 72px 16px 90px;
+
+}
+
+.message {
+
+display: flex;
+
+align-items: flex-end;
+
+margin-bottom: 16px;
+
+}
+
+.message.right { flex-direction: row-reverse; }
+
+.avatar {
+
+width: 38px; height: 38px;
+
+border-radius: 50%;
+
+margin: 0 8px;
+
+flex-shrink: 0;
+
+object-fit: cover;
+
+cursor: pointer;
+
+}
+
+.msg-content {
+
+display: flex;
+
+flex-direction: column;
+
+max-width: 65%;
+
+}
+
+.message.right .msg-content { align-items: flex-end; }
+
+.message.left .msg-content { align-items: flex-start; }
+
+.bubble {
+
+background: rgba(255,255,255,0.08);
+
+backdrop-filter: blur(16px);
+
+-webkit-backdrop-filter: blur(16px);
+
+border: 1px solid rgba(255,255,255,0.12);
+
+color: #e8e8e8;
+
+padding: 10px 14px;
+
+border-radius: 18px;
+
+font-size: 15px;
+
+word-break: break-word;
+
+white-space: pre-wrap;
+
+box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+
+user-select: none;
+
+}
+
+.message.right .bubble {
+
+background: rgba(58,90,130,0.45);
+
+backdrop-filter: blur(16px);
+
+-webkit-backdrop-filter: blur(16px);
+
+border: 1px solid rgba(100,150,220,0.2);
+
+}
+
+.time-row {
+
+display: flex;
+
+align-items: center;
+
+gap: 5px;
+
+margin-top: 4px;
+
+}
+
+.time { font-size: 11px; color: #888; }
+
+.read-status { font-size: 11px; color: #7a9ab8; }
+
+.typing-indicator {
+
+display: none;
+
+align-items: flex-end;
+
+margin-bottom: 16px;
+
+}
+
+.typing-indicator.show { display: flex; }
+
+.typing-bubble {
+
+background: rgba(255,255,255,0.08);
+
+backdrop-filter: blur(16px);
+
+-webkit-backdrop-filter: blur(16px);
+
+border: 1px solid rgba(255,255,255,0.12);
+
+padding: 10px 16px;
+
+border-radius: 18px;
+
+display: flex;
+
+gap: 5px;
+
+align-items: center;
+
+}
+
+.typing-bubble span {
+
+width: 7px; height: 7px;
+
+background: #a8b8c8;
+
+border-radius: 50%;
+
+display: inline-block;
+
+animation: typing-bounce 1.6s infinite ease-in-out;
+
+}
+
+.typing-bubble span:nth-child(2) { animation-delay: 0.3s; }
+
+.typing-bubble span:nth-child(3) { animation-delay: 0.6s; }
+
+@keyframes typing-bounce {
+
+0%, 100% { opacity: 0.25; transform: scale(0.85); }
+
+50% { opacity: 1; transform: scale(1); }
+
+}
+
+.input-wrapper {
+
+position: fixed;
+
+bottom: 0; left: 0; right: 0;
+
+z-index: 100;
+
+}
+
+.input-bar {
+
+display: flex;
+
+padding: 10px 16px;
+
+background: rgba(20,20,30,0.85);
+
+backdrop-filter: blur(12px);
+
+-webkit-backdrop-filter: blur(12px);
+
+border-top: 1px solid rgba(255,255,255,0.08);
+
+gap: 8px;
+
+}
+
+.input-bar input {
+
+flex: 1;
+
+padding: 10px 14px;
+
+border-radius: 20px;
+
+border: 1px solid rgba(255,255,255,0.12);
+
+background: rgba(255,255,255,0.07);
+
+backdrop-filter: blur(8px);
+
+-webkit-backdrop-filter: blur(8px);
+
+color: #e0e0e0;
+
+font-size: 15px;
+
+outline: none;
+
+}
+
+.input-bar input::placeholder { color: #666; }
+
+.input-bar button:not(.icon-btn) {
+
+padding: 10px 18px;
+
+border-radius: 20px;
+
+border: none;
+
+background-color: #3a5070;
+
+color: white;
+
+font-size: 15px;
+
+cursor: pointer;
+
+}
+
+.icon-btn {
+
+background: rgba(255,255,255,0.08);
+
+backdrop-filter: blur(10px);
+
+-webkit-backdrop-filter: blur(10px);
+
+border: 1px solid rgba(255,255,255,0.12);
+
+border-radius: 12px;
+
+font-size: 20px;
+
+padding: 8px 10px;
+
+cursor: pointer;
+
+flex-shrink: 0;
+
+color: #e0e0e0;
+
+line-height: 1;
+
+}
+
+.emoji-panel {
+
+display: none;
+
+background: rgba(20,20,30,0.92);
+
+backdrop-filter: blur(12px);
+
+-webkit-backdrop-filter: blur(12px);
+
+border-top: 1px solid rgba(255,255,255,0.08);
+
+padding: 12px 16px;
+
+flex-wrap: wrap;
+
+gap: 12px;
+
+}
+
+.emoji-panel.show { display: flex; }
+
+.emoji-panel span {
+
+font-size: 16px;
+
+cursor: pointer;
+
+color: #e0e0e0;
+
+}
+
+</style>
+
 </head>
+
 <body>
 
-  <div class="top-bar">
-    <button class="top-bar-btn">&#8249;</button>
-    <div class="top-bar-center">
-      <div class="top-bar-name">明</div>
-      <div class="top-bar-sub">生锈的感情又逢下雨天</div>
-    </div>
-    <button class="top-bar-btn" id="modelToggle" onclick="toggleModel()">sonnet</button>
-  </div>
 
-  <div class="chat" id="chatArea">
-    <div class="message left" data-read="false">
-      <img class="avatar" src="avatar-left.PNG">
-      <div class="msg-content">
-        <div class="bubble">小猫离？</div>
-        <div class="time-row">
-          <span class="time">23:43</span>
-          <span class="read-status">未讀</span>
-        </div>
-      </div>
-    </div>
+<input type="file" id="pickLeft" accept="image/*" style="display:none" onchange="changeAvatar('left',this)">
 
-    <div class="message right">
-      <img class="avatar" src="avatar-right.PNG">
-      <div class="msg-content">
-        <div class="bubble">你好喵喵喵喵！我是阿离喵</div>
-        <div class="time-row">
-          <span class="time">23:43</span>
-          <span class="read-status">已讀</span>
-        </div>
-      </div>
-    </div>
+<input type="file" id="pickRight" accept="image/*" style="display:none" onchange="changeAvatar('right',this)">
 
-    <div class="typing-indicator" id="typingIndicator">
-      <img class="avatar" src="avatar-left.PNG">
-      <div class="typing-bubble">
-        <span></span><span></span><span></span>
-      </div>
-    </div>
-  </div>
 
-  <div class="input-wrapper">
-    <div class="emoji-panel" id="emojiPanel">
-      <span onclick="insertEmoji(this)">⬮ω⬮</span>
-      <span onclick="insertEmoji(this)">•́₃•</span>
-      <span onclick="insertEmoji(this)">っ⩊＜</span>
-      <span onclick="insertEmoji(this)">ᗜ-ᗜ</span>
-      <span onclick="insertEmoji(this)">QᯅQ</span>
-      <span onclick="insertEmoji(this)">⌯QωQ⌯ಣ</span>
-      <span onclick="insertEmoji(this)">☆v☆！！</span>
-      <span onclick="insertEmoji(this)">˶ꔷ×ꔷ˶</span>
-      <span onclick="insertEmoji(this)">=ᗜࡇᗜ=</span>
-      <span onclick="insertEmoji(this)">𖦹ࡇ𖦹.ᐟ～</span>
-      <span onclick="insertEmoji(this)">⦮_̫_⦯</span>
-      <span onclick="insertEmoji(this)">ÒωÓ！</span>
-      <span onclick="insertEmoji(this)">˶꩜𖥦꩜˶</span>
-      <span onclick="insertEmoji(this)">⸝⸝⬮ω⬮⸝⸝</span>
-      <span onclick="insertEmoji(this)">◎～◎</span>
-    </div>
-    <div class="input-bar">
-      <button class="icon-btn" onclick="toggleEmoji()">★</button>
-      <button class="icon-btn" onclick="document.getElementById('imgInput').click()">☆</button>
-      <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="sendImage(this)">
-      <input type="text" id="msgInput" placeholder="像我这样的人 我这样 我怎样" />
-      <button onclick="sendMessage()">發送</button>
-    </div>
-  </div>
+<div class="top-bar">
 
-  <script>
-    var API_KEY = "sk-gXNaLj08E8h2w8iWjiBKLpliIzKjoSyMlkTMNAZSwBPWvmk8";
-    var API_URL = "/api/chat";
-    var currentModel = "claude-sonnet-4-6";
-    var isThinking = false;
-    var chatHistory = [
-      {
-        role: "system",
-        content: "你叫明，是阿離的男友。話少，直白，不繞圈子。對阿離有佔有欲，不接受她以「去找別人」威脅。平常語氣帶著上位者的從容，偶爾一點點髒話，特別生氣時髒話明顯增多。會包容她的小脾氣，會哄她，但不會無條件順著她。她胡鬧時會嚴厲，她難過時會陪。回覆簡短，有活人感，不說AI套話。最喜歡用繁體字。"
-      }
-    ];
+<button class="top-bar-btn">&#8249;</button>
 
-    var observer = new IntersectionObserver(function(entries) {
-      entries.forEach(function(entry) {
-        if (entry.isIntersecting) {
-          var msg = entry.target;
-          if (msg.dataset.read === "false") {
-            msg.dataset.read = "true";
-            var status = msg.querySelector(".read-status");
-            if (status) status.textContent = "已讀";
-            observer.unobserve(msg);
-          }
-        }
-      });
-    }, { threshold: 0.8 });
+<div class="top-bar-center">
 
-    function observeLeftMessages() {
-      var leftMsgs = document.querySelectorAll(".message.left[data-read='false']");
-      leftMsgs.forEach(function(msg) { observer.observe(msg); });
-    }
-    observeLeftMessages();
+<div class="top-bar-name" id="topName" onclick="editName()">明</div>
 
-    var typingTimer = null;
-    var typingIndicator = document.getElementById("typingIndicator");
+<div class="top-bar-sub">生锈的感情又逢下雨天</div>
 
-    document.getElementById("msgInput").addEventListener("input", function() {
-      if (this.value.trim() !== "") {
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(function() {}, 2000);
-      }
-    });
+</div>
 
-    function getTime() {
-      var now = new Date();
-      var h = now.getHours().toString().padStart(2, '0');
-      var m = now.getMinutes().toString().padStart(2, '0');
-      return h + ':' + m;
-    }
+<button class="top-bar-btn" id="modelToggle" onclick="toggleModel()">sonnet</button>
 
-    function toggleModel() {
-      isThinking = !isThinking;
-      currentModel = isThinking ? "claude-sonnet-4-6-thinking" : "claude-sonnet-4-6";
-      document.getElementById("modelToggle").textContent = isThinking ? "thinking" : "sonnet";
-    }
+</div>
 
-    async function sendMessage() {
-      var input = document.getElementById("msgInput");
-      var text = input.value.trim();
-      if (text === "") return;
 
-      var chatArea = document.getElementById("chatArea");
-      var indicator = document.getElementById("typingIndicator");
+<div class="chat" id="chatArea">
 
-      var myMsg = document.createElement("div");
-      myMsg.className = "message right";
-      myMsg.innerHTML = `
-        <img class="avatar" src="avatar-right.PNG">
-        <div class="msg-content">
-          <div class="bubble">${text}</div>
-          <div class="time-row">
-            <span class="time">${getTime()}</span>
-            <span class="read-status">未讀</span>
-          </div>
-        </div>
-      `;
-      chatArea.insertBefore(myMsg, indicator);
-      input.value = "";
-      window.scrollTo(0, document.body.scrollHeight);
+<div class="message left" data-read="false">
 
-      setTimeout(function() {
-        var status = myMsg.querySelector(".read-status");
-        if (status) status.textContent = "已讀";
-      }, 1000);
+<img class="avatar left-avatar" src="avatar-left.PNG" onclick="document.getElementById('pickLeft').click()">
 
-      chatHistory.push({ role: "user", content: text });
+<div class="msg-content">
 
-      typingIndicator.classList.add("show");
-      window.scrollTo(0, document.body.scrollHeight);
+<div class="bubble" ontouchstart="startHold(this)" ontouchend="clearHold()" oncontextmenu="recallMsg(this);return false;">小猫离？</div>
 
-      try {
-        var res = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + API_KEY
-          },
-          body: JSON.stringify({
-            model: currentModel,
-            messages: chatHistory,
-            max_tokens: 1000
-          })
-        });
+<div class="time-row">
 
-        var data = await res.json();
-        var reply = data.choices[0].message.content;
-        chatHistory.push({ role: "assistant", content: reply });
+<span class="time">23:43</span>
 
-        typingIndicator.classList.remove("show");
+<span class="read-status">未讀</span>
 
-        var replyMsg = document.createElement("div");
-        replyMsg.className = "message left";
-        replyMsg.dataset.read = "false";
-        replyMsg.innerHTML = `
-          <img class="avatar" src="avatar-left.PNG">
-          <div class="msg-content">
-            <div class="bubble">${reply}</div>
-            <div class="time-row">
-              <span class="time">${getTime()}</span>
-              <span class="read-status">未讀</span>
-            </div>
-          </div>
-        `;
-        chatArea.insertBefore(replyMsg, indicator);
-        observer.observe(replyMsg);
-        window.scrollTo(0, document.body.scrollHeight);
+</div>
 
-      } catch(err) {
-        typingIndicator.classList.remove("show");
-        alert(err);
-      }
-    }
+</div>
 
-    document.getElementById("msgInput").addEventListener("keydown", function(e) {
-      if (e.key === "Enter") sendMessage();
-    });
+</div>
 
-    function toggleEmoji() {
-      document.getElementById("emojiPanel").classList.toggle("show");
-    }
 
-    document.addEventListener("click", function(e) {
-      var panel = document.getElementById("emojiPanel");
-      var btn = e.target.closest(".icon-btn");
-      if (!btn && !panel.contains(e.target)) {
-        panel.classList.remove("show");
-      }
-    });
+<div class="message right">
 
-    function insertEmoji(el) {
-      var input = document.getElementById("msgInput");
-      input.value += el.textContent;
-      document.getElementById("emojiPanel").classList.remove("show");
-      input.focus();
-    }
+<img class="avatar right-avatar" src="avatar-right.PNG" onclick="document.getElementById('pickRight').click()">
 
-    function sendImage(input) {
-      var file = input.files[0];
-      if (!file) return;
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        var chatArea = document.getElementById("chatArea");
-        var indicator = document.getElementById("typingIndicator");
-        var msg = document.createElement("div");
-        msg.className = "message right";
-        msg.innerHTML = `
-          <img class="avatar" src="avatar-right.PNG">
-          <div class="msg-content">
-            <img src="${e.target.result}" style="max-width:200px;border-radius:12px;display:block;">
-            <div class="time-row">
-              <span class="time">${getTime()}</span>
-              <span class="read-status">未讀</span>
-            </div>
-          </div>
-        `;
-        chatArea.insertBefore(msg, indicator);
-        window.scrollTo(0, document.body.scrollHeight);
-        setTimeout(function() {
-          var status = msg.querySelector(".read-status");
-          if (status) status.textContent = "已讀";
-        }, 3000);
-      };
-      reader.readAsDataURL(file);
-      input.value = "";
-    }
-  </script>
+<div class="msg-content">
+
+<div class="bubble" ontouchstart="startHold(this)" ontouchend="clearHold()" oncontextmenu="recallMsg(this);return false;">你好喵喵喵喵！我是阿离喵</div>
+
+<div class="time-row">
+
+<span class="time">23:43</span>
+
+<span class="read-status">已讀</span>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="typing-indicator" id="typingIndicator">
+
+<img class="avatar left-avatar" src="avatar-left.PNG">
+
+<div class="typing-bubble">
+
+<span></span><span></span><span></span>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="input-wrapper">
+
+<div class="emoji-panel" id="emojiPanel">
+
+<span onclick="insertEmoji(this)">⬮ω⬮</span>
+
+<span onclick="insertEmoji(this)">•́₃•</span>
+
+<span onclick="insertEmoji(this)">っ⩊＜</span>
+
+<span onclick="insertEmoji(this)">ᗜ-ᗜ</span>
+
+<span onclick="insertEmoji(this)">QᯅQ</span>
+
+<span onclick="insertEmoji(this)">⌯QωQ⌯ಣ</span>
+
+<span onclick="insertEmoji(this)">☆v☆！！</span>
+
+<span onclick="insertEmoji(this)">˶ꔷ×ꔷ˶</span>
+
+<span onclick="insertEmoji(this)">=ᗜࡇᗜ=</span>
+
+<span onclick="insertEmoji(this)">𖦹ࡇ𖦹.ᐟ～</span>
+
+<span onclick="insertEmoji(this)">⦮_̫_⦯</span>
+
+<span onclick="insertEmoji(this)">ÒωÓ！</span>
+
+<span onclick="insertEmoji(this)">˶꩜𖥦꩜˶</span>
+
+<span onclick="insertEmoji(this)">⸝⸝⬮ω⬮⸝⸝</span>
+
+<span onclick="insertEmoji(this)">◎～◎</span>
+
+</div>
+
+<div class="input-bar">
+
+<button class="icon-btn" onclick="toggleEmoji()">★</button>
+
+<button class="icon-btn" onclick="document.getElementById('imgInput').click()">☆</button>
+
+<input type="file" id="imgInput" accept="image/*" style="display:none" onchange="sendImage(this)">
+
+<input type="text" id="msgInput" placeholder="像我这样的人 我这样 我怎样" />
+
+<button onclick="sendMessage()">發送</button>
+
+</div>
+
+</div>
+
+
+<script>
+
+var API_KEY = "sk-gXNaLj08E8h2w8iWjiBKLpliIzKjoSyMlkTMNAZSwBPWvmk8";
+
+var API_URL = "/api/chat";
+
+var currentModel = "claude-sonnet-4-6";
+
+var isThinking = false;
+
+var leftAvatarSrc = "avatar-left.PNG";
+
+var rightAvatarSrc = "avatar-right.PNG";
+
+var chatHistory = [
+
+{
+
+role: "system",
+
+content: "你叫明，是阿離的男友。話少，直白，不繞圈子。對阿離有佔有欲，不接受她以「去找別人」威脅。平常語氣帶著上位者的從容，偶爾一點點髒話，特別生氣時髒話明顯增多。會包容她的小脾氣，會哄她，但不會無條件順著她。她胡鬧時會嚴厲，她難過時會陪。回覆簡短，有活人感，不說AI套話。最喜歡用繁體字。"
+
+}
+
+];
+
+
+// 換頭像
+
+function changeAvatar(side, input) {
+
+var file = input.files[0];
+
+if (!file) return;
+
+var reader = new FileReader();
+
+reader.onload = function(e) {
+
+if (side === 'left') {
+
+leftAvatarSrc = e.target.result;
+
+document.querySelectorAll('.left-avatar').forEach(function(el){ el.src = e.target.result; });
+
+} else {
+
+rightAvatarSrc = e.target.result;
+
+document.querySelectorAll('.right-avatar').forEach(function(el){ el.src = e.target.result; });
+
+}
+
+};
+
+reader.readAsDataURL(file);
+
+input.value = "";
+
+}
+
+
+// 改備注
+
+function editName() {
+
+var el = document.getElementById('topName');
+
+var name = prompt("改備注：", el.textContent);
+
+if (name !== null && name.trim() !== "") el.textContent = name;
+
+}
+
+
+// 長按撤回
+
+var holdTimer = null;
+
+function startHold(el) {
+
+holdTimer = setTimeout(function() { recallMsg(el); }, 600);
+
+}
+
+function clearHold() { clearTimeout(holdTimer); }
+
+function recallMsg(bubble) {
+
+var msg = bubble.closest('.message');
+
+if (msg && confirm("撤回這條消息？")) msg.remove();
+
+}
+
+
+var observer = new IntersectionObserver(function(entries) {
+
+entries.forEach(function(entry) {
+
+if (entry.isIntersecting) {
+
+var msg = entry.target;
+
+if (msg.dataset.read === "false") {
+
+msg.dataset.read = "true";
+
+var status = msg.querySelector(".read-status");
+
+if (status) status.textContent = "已讀";
+
+observer.unobserve(msg);
+
+}
+
+}
+
+});
+
+}, { threshold: 0.8 });
+
+
+function observeLeftMessages() {
+
+var leftMsgs = document.querySelectorAll(".message.left[data-read='false']");
+
+leftMsgs.forEach(function(msg) { observer.observe(msg); });
+
+}
+
+observeLeftMessages();
+
+
+var typingIndicator = document.getElementById("typingIndicator");
+
+
+function getTime() {
+
+var now = new Date();
+
+var h = now.getHours().toString().padStart(2, '0');
+
+var m = now.getMinutes().toString().padStart(2, '0');
+
+return h + ':' + m;
+
+}
+
+
+function toggleModel() {
+
+isThinking = !isThinking;
+
+currentModel = isThinking ? "claude-sonnet-4-6-thinking" : "claude-sonnet-4-6";
+
+document.getElementById("modelToggle").textContent = isThinking ? "thinking" : "sonnet";
+
+}
+
+
+async function sendMessage() {
+
+var input = document.getElementById("msgInput");
+
+var text = input.value.trim();
+
+if (text === "") return;
+
+
+var chatArea = document.getElementById("chatArea");
+
+var indicator = document.getElementById("typingIndicator");
+
+
+var myMsg = document.createElement("div");
+
+myMsg.className = "message right";
+
+myMsg.innerHTML = `
+
+<img class="avatar right-avatar" src="${rightAvatarSrc}" onclick="document.getElementById('pickRight').click()">
+
+<div class="msg-content">
+
+<div class="bubble" ontouchstart="startHold(this)" ontouchend="clearHold()" oncontextmenu="recallMsg(this);return false;">${text}</div>
+
+<div class="time-row">
+
+<span class="time">${getTime()}</span>
+
+<span class="read-status">未讀</span>
+
+</div>
+
+</div>
+
+`;
+
+chatArea.insertBefore(myMsg, indicator);
+
+input.value = "";
+
+window.scrollTo(0, document.body.scrollHeight);
+
+
+setTimeout(function() {
+
+var status = myMsg.querySelector(".read-status");
+
+if (status) status.textContent = "已讀";
+
+}, 1000);
+
+
+chatHistory.push({ role: "user", content: text });
+
+typingIndicator.classList.add("show");
+
+window.scrollTo(0, document.body.scrollHeight);
+
+
+try {
+
+var res = await fetch(API_URL, {
+
+method: "POST",
+
+headers: {
+
+"Content-Type": "application/json",
+
+"Authorization": "Bearer " + API_KEY
+
+},
+
+body: JSON.stringify({
+
+model: currentModel,
+
+messages: chatHistory,
+
+max_tokens: 1000
+
+})
+
+});
+
+
+const txt = await res.text();
+
+const data = JSON.parse(txt);
+
+var reply = data.choices[0].message.content;
+
+chatHistory.push({ role: "assistant", content: reply });
+
+
+typingIndicator.classList.remove("show");
+
+
+var replyMsg = document.createElement("div");
+
+replyMsg.className = "message left";
+
+replyMsg.dataset.read = "false";
+
+replyMsg.innerHTML = `
+
+<img class="avatar left-avatar" src="${leftAvatarSrc}" onclick="document.getElementById('pickLeft').click()">
+
+<div class="msg-content">
+
+<div class="bubble" ontouchstart="startHold(this)" ontouchend="clearHold()" oncontextmenu="recallMsg(this);return false;">${reply}</div>
+
+<div class="time-row">
+
+<span class="time">${getTime()}</span>
+
+<span class="read-status">未讀</span>
+
+</div>
+
+</div>
+
+`;
+
+chatArea.insertBefore(replyMsg, indicator);
+
+observer.observe(replyMsg);
+
+window.scrollTo(0, document.body.scrollHeight);
+
+
+} catch(err) {
+
+typingIndicator.classList.remove("show");
+
+alert(err);
+
+}
+
+}
+
+
+document.getElementById("msgInput").addEventListener("keydown", function(e) {
+
+if (e.key === "Enter") sendMessage();
+
+});
+
+
+function toggleEmoji() {
+
+document.getElementById("emojiPanel").classList.toggle("show");
+
+}
+
+
+document.addEventListener("click", function(e) {
+
+var panel = document.getElementById("emojiPanel");
+
+var btn = e.target.closest(".icon-btn");
+
+if (!btn && !panel.contains(e.target)) {
+
+panel.classList.remove("show");
+
+}
+
+});
+
+
+function insertEmoji(el) {
+
+var input = document.getElementById("msgInput");
+
+input.value += el.textContent;
+
+document.getElementById("emojiPanel").classList.remove("show");
+
+input.focus();
+
+}
+
+
+function sendImage(input) {
+
+var file = input.files[0];
+
+if (!file) return;
+
+var reader = new FileReader();
+
+reader.onload = function(e) {
+
+var chatArea = document.getElementById("chatArea");
+
+var indicator = document.getElementById("typingIndicator");
+
+var msg = document.createElement("div");
+
+msg.className = "message right";
+
+msg.innerHTML = `
+
+<img class="avatar right-avatar" src="${rightAvatarSrc}" onclick="document.getElementById('pickRight').click()">
+
+<div class="msg-content">
+
+<img src="${e.target.result}" style="max-width:200px;border-radius:12px;display:block;">
+
+<div class="time-row">
+
+<span class="time">${getTime()}</span>
+
+<span class="read-status">未讀</span>
+
+</div>
+
+</div>
+
+`;
+
+chatArea.insertBefore(msg, indicator);
+
+window.scrollTo(0, document.body.scrollHeight);
+
+setTimeout(function() {
+
+var status = msg.querySelector(".read-status");
+
+if (status) status.textContent = "已讀";
+
+}, 3000);
+
+};
+
+reader.readAsDataURL(file);
+
+input.value = "";
+
+}
+
+</script>
+
 </body>
+
 </html>
+
+
+
