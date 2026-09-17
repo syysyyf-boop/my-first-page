@@ -563,7 +563,7 @@ color: #e0e0e0;
 
 var API_KEY = "sk-gXNaLj08E8h2w8iWjiBKLpliIzKjoSyMlkTMNAZSwBPWvmk8";
 
-var API_URL = "/api/chat";
+var API_URL = "https://www.molytea.ccwu.cc/ai-relay/v1/chat/completions";
 
 var currentModel = "claude-sonnet-4-6";
 
@@ -818,7 +818,7 @@ try {
 
 } catch(parseErr) {
 
-  alert("relay原始回應(前300字)：\n" + txt.substring(0, 300));
+  alert("原始回應(前500字)：\n" + txt.substring(0, 500));
 
   typingIndicator.classList.remove("show");
 
@@ -873,7 +873,7 @@ window.scrollTo(0, document.body.scrollHeight);
 
 typingIndicator.classList.remove("show");
 
-alert(err);
+alert("錯誤：" + err);
 
 }
 
