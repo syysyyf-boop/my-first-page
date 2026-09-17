@@ -16,7 +16,6 @@
       font-size: 14px;
     }
 
-    /* 頂部 bar */
     .top-bar {
       position: fixed;
       top: 0;
@@ -100,7 +99,6 @@
       align-items: flex-start;
     }
 
-    /* 液態玻璃氣泡 */
     .bubble {
       background: rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(16px);
@@ -139,7 +137,46 @@
       color: #7a9ab8;
     }
 
-    /* 輸入欄 */
+    /* 正在輸入 */
+    .typing-indicator {
+      display: none;
+      align-items: flex-end;
+      margin-bottom: 16px;
+    }
+
+    .typing-indicator.show {
+      display: flex;
+    }
+
+    .typing-bubble {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 10px 16px;
+      border-radius: 18px;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .typing-bubble span {
+      width: 7px;
+      height: 7px;
+      background: #a8b8c8;
+      border-radius: 50%;
+      display: inline-block;
+      animation: typing-bounce 1.2s infinite ease-in-out;
+    }
+
+    .typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing-bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+      40% { transform: translateY(-6px); opacity: 1; }
+    }
+
     .input-bar {
       position: fixed;
       bottom: 0;
@@ -184,7 +221,6 @@
 </head>
 <body>
 
-  <!-- 頂部 bar -->
   <div class="top-bar">
     <button class="top-bar-btn">&#8249;</button>
     <div class="top-bar-center">
@@ -196,12 +232,13 @@
 
   <div class="chat" id="chatArea">
 
-    <div class="message left">
+    <div class="message left" data-read="false">
       <img class="avatar" src="avatar-left.PNG">
       <div class="msg-content">
         <div class="bubble">小猫离？</div>
         <div class="time-row">
           <span class="time">23:43</span>
+          <span class="read-status">未讀</span>
         </div>
       </div>
     </div>
@@ -217,6 +254,14 @@
       </div>
     </div>
 
+    <!-- 正在輸入提示 -->
+    <div class="typing-indicator" id="typingIndicator">
+      <img class="avatar" src="avatar-left.PNG">
+      <div class="typing-bubble">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
     <div class="input-bar">
       <input type="text" id="msgInput" placeholder="消息" />
       <button onclick="sendMessage()">發送</button>
@@ -224,6 +269,46 @@
   </div>
 
   <script>
+    // 已讀觀察器（左邊氣泡進入視野→已讀）
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var msg = entry.target;
+          if (msg.dataset.read === "false") {
+            msg.dataset.read = "true";
+            var status = msg.querySelector(".read-status");
+            if (status) status.textContent = "已讀";
+            observer.unobserve(msg);
+          }
+        }
+      });
+    }, { threshold: 0.8 });
+
+    function observeLeftMessages() {
+      var leftMsgs = document.querySelectorAll(".message.left[data-read='false']");
+      leftMsgs.forEach(function(msg) { observer.observe(msg); });
+    }
+
+    observeLeftMessages();
+
+    // 正在輸入
+    var typingTimer = null;
+    var typingIndicator = document.getElementById("typingIndicator");
+
+    document.getElementById("msgInput").addEventListener("input", function() {
+      if (this.value.trim() !== "") {
+        typingIndicator.classList.add("show");
+        window.scrollTo(0, document.body.scrollHeight);
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(function() {
+          typingIndicator.classList.remove("show");
+        }, 2000);
+      } else {
+        typingIndicator.classList.remove("show");
+        clearTimeout(typingTimer);
+      }
+    });
+
     function getTime() {
       var now = new Date();
       var h = now.getHours().toString().padStart(2, '0');
@@ -236,13 +321,16 @@
       var text = input.value.trim();
       if (text === "") return;
 
+      typingIndicator.classList.remove("show");
+      clearTimeout(typingTimer);
+
       var chatArea = document.getElementById("chatArea");
-      var inputBar = document.querySelector(".input-bar");
+      var indicator = document.getElementById("typingIndicator");
 
       var msg = document.createElement("div");
       msg.className = "message right";
       msg.innerHTML = `
-        <img class="avatar" src="avatar-right.PNG">
+        < img class="avatar" src="avatar-right.PNG">
         <div class="msg-content">
           <div class="bubble">${text}</div>
           <div class="time-row">
@@ -252,11 +340,10 @@
         </div>
       `;
 
-      chatArea.insertBefore(msg, inputBar);
+      chatArea.insertBefore(msg, indicator);
       input.value = "";
       window.scrollTo(0, document.body.scrollHeight);
 
-      // 3秒後變已讀
       setTimeout(function() {
         var status = msg.querySelector(".read-status");
         if (status) status.textContent = "已讀";
