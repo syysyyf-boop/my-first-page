@@ -812,6 +812,7 @@ const txt = await res.text();
 
 const data = JSON.parse(txt);
 
+if (!data.choices) { alert(JSON.stringify(data)); typingIndicator.classList.remove("show"); return; }
 var reply = data.choices[0].message.content;
 
 chatHistory.push({ role: "assistant", content: reply });
