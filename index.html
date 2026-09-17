@@ -204,19 +204,58 @@
       outline: none;
     }
 
-    .input-bar input::placeholder {
+    .input-bar input:placeholder {
       color: #666;
     }
 
     .input-bar button {
-      padding: 10px 18px;
-      border-radius: 20px;
-      border: none;
-      background-color: #3a5070;
-      color: white;
-      font-size: 15px;
-      cursor: pointer;
-    }
+  padding: 10px 18px;
+  border-radius: 20px;
+  border: none;
+  background-color: #3a5070;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.icon-btn {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  font-size: 20px;
+  padding: 8px 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: #e0e0e0;
+  line-height: 1;
+}
+
+.emoji-panel {
+  display: none;
+  position: fixed;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  background: rgba(20, 20, 30, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 12px 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+  z-index: 99;
+}
+
+.emoji-panel.show {
+  display: flex;
+}
+
+.emoji-panel span {
+  font-size: 28px;
+  cursor: pointer;
+}
   </style>
 </head>
 <body>
@@ -225,7 +264,7 @@
     <button class="top-bar-btn">&#8249;</button>
     <div class="top-bar-center">
       <div class="top-bar-name">明</div>
-      <div class="top-bar-sub">如果我足够像他你就会爱我了吗</div>
+      <div class="top-bar-sub">生锈的感情又逢下雨天</div>
     </div>
     <button class="top-bar-btn">&#8943;</button>
   </div>
@@ -263,8 +302,24 @@
     </div>
 
     <div class="input-bar">
-      <input type="text" id="msgInput" placeholder="消息" />
-      <button onclick="sendMessage()">發送</button>
+  <button class="icon-btn" onclick="toggleEmoji()">&#128512;</button>
+  <button class="icon-btn" onclick="document.getElementById('imgInput').click()">&#128247;</button>
+  <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="sendImage(this)">
+  <input type="text" id="msgInput" placeholder="像我这样的人 我这样 我怎样" />
+  <button onclick="sendMessage()">發送</button>
+</div>
+
+<!-- 表情面板 -->
+<div class="emoji-panel" id="emojiPanel">
+  <span onclick="insertEmoji(this)">😊</span><span onclick="insertEmoji(this)">😂</span>
+  <span onclick="insertEmoji(this)">🥰</span><span onclick="insertEmoji(this)">😭</span>
+  <span onclick="insertEmoji(this)">😅</span><span onclick="insertEmoji(this)">🤣</span>
+  <span onclick="insertEmoji(this)">😘</span><span onclick="insertEmoji(this)">🥺</span>
+  <span onclick="insertEmoji(this)">😏</span><span onclick="insertEmoji(this)">🙄</span>
+  <span onclick="insertEmoji(this)">😤</span><span onclick="insertEmoji(this)">😈</span>
+  <span onclick="insertEmoji(this)">🐱</span><span onclick="insertEmoji(this)">🐶</span>
+  <span onclick="insertEmoji(this)">❤️</span><span onclick="insertEmoji(this)">💀</span>
+</div>
     </div>
   </div>
 
@@ -353,6 +408,46 @@
     document.getElementById("msgInput").addEventListener("keydown", function(e) {
       if (e.key === "Enter") sendMessage();
     });
-  </script>
+ function toggleEmoji() {
+  document.getElementById("emojiPanel").classList.toggle("show");
+}
+
+function insertEmoji(el) {
+  var input = document.getElementById("msgInput");
+  input.value += el.textContent;
+  document.getElementById("emojiPanel").classList.remove("show");
+  input.focus();
+}
+
+function sendImage(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var chatArea = document.getElementById("chatArea");
+    var indicator = document.getElementById("typingIndicator");
+    var msg = document.createElement("div");
+    msg.className = "message right";
+    msg.innerHTML = `
+      <img class="avatar" src="avatar-right.PNG">
+      <div class="msg-content">
+        <img src="${e.target.result}" style="max-width:200px;border-radius:12px;display:block;">
+        <div class="time-row">
+          <span class="time">${getTime()}</span>
+          <span class="read-status">未讀</span>
+        </div>
+      </div>
+    `;
+    chatArea.insertBefore(msg, indicator);
+    window.scrollTo(0, document.body.scrollHeight);
+    setTimeout(function() {
+      var status = msg.querySelector(".read-status");
+      if (status) status.textContent = "已讀";
+    }, 3000);
+  };
+  reader.readAsDataURL(file);
+  input.value = "";
+}
+ </script>
 </body>
 </html>
