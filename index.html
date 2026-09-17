@@ -414,7 +414,8 @@
     });
  function toggleEmoji() {
   document.getElementById("emojiPanel").classList.toggle("show");
-}document.addEventListener("click", function(e) {
+}
+    document.addEventListener("click", function(e) {
   var panel = document.getElementById("emojiPanel");
   var btn = e.target.closest(".icon-btn");
   if (!btn && !panel.contains(e.target)) {
